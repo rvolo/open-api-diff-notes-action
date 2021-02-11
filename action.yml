@@ -1,0 +1,15 @@
+name: 'open-api-diff-notes'
+description: 'Compares 2 OpenApi specification files and adds a comment to open PR'
+inputs:
+  baseFile:
+    description: 'path to base openapi file'
+    required: true
+  headFile:
+    description: 'path to head openapi file'
+    required: true
+  github_token:
+    description: 'token to create issue with'
+    required: true
+runs:
+  using: 'node12'
+  main: 'index.js'
