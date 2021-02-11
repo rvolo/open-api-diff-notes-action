@@ -10,6 +10,10 @@ inputs:
   github_token:
     description: 'token to create issue with'
     required: true
+  repo:
+    description: The owner and repository name. e.g.) Codertocat/Hello-World
+    required: false
+    default: ${{ github.repository }}
 runs:
   using: 'node12'
   main: 'index.js'
