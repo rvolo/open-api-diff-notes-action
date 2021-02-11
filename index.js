@@ -16,23 +16,22 @@ try {
 }
 
 function diffSpecs(githubToken, baseFile, headFile) {
-    openapiDiff.diffSpecs({
-        sourceSpec: {
-            content: fs.readFileSync(baseFile, 'utf8'),
-            format: 'openapi3'
-        },
-        destinationSpec: {
-            content: fs.readFileSync(headFile, 'utf8'),
-            format: 'openapi3'
-        }
-    }).then((result) => {
-        comment(githubToken, result)
-    })
+    openapiDiff
+        .diffSpecs({
+            sourceSpec: {
+                content: fs.readFileSync(baseFile, 'utf8'),
+                format: 'openapi3'
+            },
+            destinationSpec: {
+                content: fs.readFileSync(headFile, 'utf8'),
+                format: 'openapi3'
+            }
+        })
+        .catch((error) => comment(githubToken, error.message))
+        .then((result) => comment(githubToken, markdownMessage(result)))
 }
 
-function comment(githubToken, openApiResults) {
-    let message = markdownMessage(openApiResults);
-
+function comment(githubToken, message) {
     const octokit = github.getOctokit(githubToken);
     let {owner, repo} = github.context.repo;
 
