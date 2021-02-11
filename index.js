@@ -32,6 +32,10 @@ function diffSpecs(githubToken, baseFile, headFile) {
 }
 
 function comment(githubToken, message) {
+    if (message.length === 0) {
+        return;
+    }
+
     const octokit = github.getOctokit(githubToken);
     let {owner, repo} = github.context.repo;
 
@@ -55,59 +59,58 @@ function comment(githubToken, message) {
  * @returns {string}
  */
 function markdownMessage(openApiResults) {
-    let msg = "## OpenApi Specification changes \n\n";
-
-    if (openApiResultsHasChanges(openApiResults.breakingDifferences)) {
-        msg += "#### :rotating_light: Breaking Api Changes \n";
-        msg += "|             | Action | Path |\n";
-        msg += "|-------------|--------|------|\n";
-
-        openApiResults.breakingDifferences.forEach(function (item) {
-            item.sourceSpecEntityDetails.forEach(function (entity) {
-                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
-            })
-            item.destinationSpecEntityDetails.forEach(function (entity) {
-                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
-            })
-        })
+    let breaking = openApiResultsTable(openApiResults.breakingDifferences);
+    if (breaking.length > 0) {
+        breaking =
+            "#### :rotating_light: Breaking Api Changes \n" +
+            "|             | Action | Path |\n" +
+            "|-------------|--------|------|\n"
+            + breaking;
     }
 
-    if (openApiResultsHasChanges(openApiResults.nonBreakingDifferences)) {
-        msg += "#### :heavy_check_mark: Api Changes \n";
-        msg += "|             | Action | Path |\n";
-        msg += "|-------------|--------|------|\n";
-
-        openApiResults.nonBreakingDifferences.forEach(function (item) {
-            item.sourceSpecEntityDetails.forEach(function (entity) {
-                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
-            })
-            item.destinationSpecEntityDetails.forEach(function (entity) {
-                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
-            })
-        })
+    let nonBreaking = openApiResultsTable(openApiResults.nonBreakingDifferences);
+    if (nonBreaking.length > 0) {
+        nonBreaking =
+            "#### :heavy_check_mark: Api Changes \n" +
+            "|             | Action | Path |\n" +
+            "|-------------|--------|------|\n"
+            + nonBreaking;
     }
 
-    return msg;
+    if (breaking.length > 0 || nonBreaking.length > 0) {
+        return "## OpenApi Specification changes \n\n" + breaking + nonBreaking;
+    }
+    return "";
 }
 
 /**
- * Checks if change differences has values that need to be reported
- * @param changes
+ * Generates table rows
  * @returns {boolean}
  */
-function openApiResultsHasChanges(changes) {
-    if (typeof changes !== "undefined") {
-        return false;
+function openApiResultsTable(changes) {
+    let msg = "";
+
+    if (typeof changes === "undefined") {
+        return "";
     }
 
-    if (changes.sourceSpecEntityDetails.length !== 0) {
-        return true;
-    }
+    changes.forEach(function (item){
+        if (typeof item.sourceSpecEntityDetails !== "undefined") {
+            item.sourceSpecEntityDetails.forEach(function (entity) {
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
+                console.log()
+            })
+        }
 
-    if (changes.destinationSpecEntityDetails !== 0) {
-        return true;
-    }
-    return false;
+        if (typeof item.destinationSpecEntityDetails !== "undefined") {
+            item.destinationSpecEntityDetails.forEach(function (entity) {
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
+                console.log()
+            })
+        }
+    })
+
+    return msg;
 }
 
 /**
