@@ -52,7 +52,7 @@ function comment(githubToken, message) {
 function markdownMessage(openApiResults) {
     let msg = "## OpenApi Specification changes \n\n";
 
-    if (openApiResults.breakingDifferences.length !== 0) {
+    if (typeof openApiResults.breakingDifferences !== "undefined") {
         msg += "#### :rotating_light: Breaking Api Changes \n";
         msg += "|             | Action | Path |\n";
         msg += "|-------------|--------|------|\n";
@@ -61,16 +61,22 @@ function markdownMessage(openApiResults) {
             item.sourceSpecEntityDetails.forEach(function (entity) {
                 msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
             })
+            item.destinationSpecEntityDetails.forEach(function (entity) {
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
+            })
         })
     }
 
-    if (openApiResults.nonBreakingDifferences.length !== 0) {
+    if (typeof openApiResults.nonBreakingDifferences !== "undefined") {
         msg += "#### :heavy_check_mark: Api Changes \n";
         msg += "|             | Action | Path |\n";
         msg += "|-------------|--------|------|\n";
 
         openApiResults.nonBreakingDifferences.forEach(function (item) {
             item.sourceSpecEntityDetails.forEach(function (entity) {
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
+            })
+            item.destinationSpecEntityDetails.forEach(function (entity) {
                 msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
             })
         })
@@ -83,7 +89,12 @@ function actionEmoji(code) {
     // :zap:
     switch (code) {
         case "method.remove":
+        case "path.remove":
             return ":collision:";
+        case "method.add":
+            return ":heavy_plus_sign:";
+        case "path.add":
+            return ":sparkles:";
         default:
             return ":question:";
     }
