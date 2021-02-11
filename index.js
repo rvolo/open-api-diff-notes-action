@@ -1,9 +1,5 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-import * as github from '@actions/github';
-import * as core from '@actions/core';
-
+const core = require('@actions/core');
+const github = require('@actions/github');
 const openapiDiff = require('openapi-diff');
 const fs = require('fs')
 
@@ -12,7 +8,7 @@ try {
 
     let baseFile = core.getInput('baseFile', {required: true});
     let headFile = core.getInput('headFile', {required: true});
-    let githubToken = core.getInput('github_token', { required: true });
+    let githubToken = core.getInput('github_token', {required: true});
 
     const result = await openapiDiff.diffSpecs({
         sourceSpec: {
@@ -27,7 +23,7 @@ try {
     let resultsJson = JSON.stringify(result);
 
     const octokit = github.getOctokit(githubToken);
-    let { owner, repo } = github.context.repo;
+    let {owner, repo} = github.context.repo;
     if (core.getInput('repo')) {
         [owner, repo] = core.getInput('repo').split('/');
     }
