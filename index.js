@@ -20,18 +20,20 @@ try {
             format: 'openapi3'
         }
     });
-    let resultsJson = JSON.stringify(result);
+
+    let body= JSON.stringify(result);
 
     const octokit = github.getOctokit(githubToken);
     let {owner, repo} = github.context.repo;
     if (core.getInput('repo')) {
         [owner, repo] = core.getInput('repo').split('/');
     }
+
     octokit.issues.createComment({
         owner,
         repo,
         issue_number: issueNumber,
-        resultsJson
+        body
     });
 
 } catch (error) {
