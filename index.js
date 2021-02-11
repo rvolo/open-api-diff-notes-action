@@ -51,31 +51,41 @@ function comment(githubToken, openApiResults) {
 }
 
 function markdownMessage(openApiResults) {
-    let msg = "";
+    let msg = "## OpenApi Specification changes \n\n";
 
     if (openApiResults.breakingDifferences.length !== 0) {
-        msg += "##BREAKING API CHANGES\n";
-        msg += "| Action | Path |\n";
-        msg += "|--------|------|\n";
+        msg += "#### :rotating_light: Breaking Api Changes \n";
+        msg += "|             | Action | Path |\n";
+        msg += "|-------------|--------|------|\n";
 
         openApiResults.breakingDifferences.forEach(function (item) {
-            item.sourceSpecEntityDetails.forEach(function (entity){
-                msg += "| " + item.action + " | "+ entity.location+ " |";
+            item.sourceSpecEntityDetails.forEach(function (entity) {
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
             })
         })
     }
 
     if (openApiResults.nonBreakingDifferences.length !== 0) {
-        msg += "##NON BREAKING API CHANGES\n";
-        msg += "| Action | Path |\n";
-        msg += "|--------|------|\n";
+        msg += "#### :heavy_check_mark: Api Changes \n";
+        msg += "|             | Action | Path |\n";
+        msg += "|-------------|--------|------|\n";
 
         openApiResults.nonBreakingDifferences.forEach(function (item) {
-            item.sourceSpecEntityDetails.forEach(function (entity){
-                msg += "| " + item.code + " | "+ entity.location+ " |";
+            item.sourceSpecEntityDetails.forEach(function (entity) {
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
             })
         })
     }
 
     return msg;
+}
+
+function actionEmoji(code) {
+    // :zap:
+    switch (code) {
+        case "method.remove":
+            return ":collision:";
+        default:
+            return ":question:";
+    }
 }
