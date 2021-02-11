@@ -49,10 +49,15 @@ function comment(githubToken, message) {
     });
 }
 
+/**
+ * Coverts diff results into a markdown message to post in pr
+ * @param openApiResults
+ * @returns {string}
+ */
 function markdownMessage(openApiResults) {
     let msg = "## OpenApi Specification changes \n\n";
 
-    if (typeof openApiResults.breakingDifferences !== "undefined") {
+    if (openApiResultsHasChanges(openApiResults.breakingDifferences)) {
         msg += "#### :rotating_light: Breaking Api Changes \n";
         msg += "|             | Action | Path |\n";
         msg += "|-------------|--------|------|\n";
@@ -67,7 +72,7 @@ function markdownMessage(openApiResults) {
         })
     }
 
-    if (typeof openApiResults.nonBreakingDifferences !== "undefined") {
+    if (openApiResultsHasChanges(openApiResults.nonBreakingDifferences)) {
         msg += "#### :heavy_check_mark: Api Changes \n";
         msg += "|             | Action | Path |\n";
         msg += "|-------------|--------|------|\n";
@@ -85,6 +90,31 @@ function markdownMessage(openApiResults) {
     return msg;
 }
 
+/**
+ * Checks if change differences has values that need to be reported
+ * @param changes
+ * @returns {boolean}
+ */
+function openApiResultsHasChanges(changes) {
+    if (typeof changes !== "undefined") {
+        return false;
+    }
+
+    if (changes.sourceSpecEntityDetails.length !== 0) {
+        return true;
+    }
+
+    if (changes.destinationSpecEntityDetails !== 0) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Gets a emoji to reflect level of change
+ * @param code - change code
+ * @returns {string}
+ */
 function actionEmoji(code) {
     // :zap:
     switch (code) {
