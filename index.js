@@ -3,20 +3,19 @@ const github = require('@actions/github');
 const openapiDiff = require('openapi-diff');
 const fs = require('fs')
 
-try {
+function main() {
     let baseFile = core.getInput('baseFile', {required: true});
     let headFile = core.getInput('headFile', {required: true});
     let githubToken = core.getInput('github_token', {required: true});
 
-    diffSpecs(githubToken, baseFile, headFile);
-
-} catch (error) {
-    console.log(error)
-    core.setFailed(error.message);
+    return diffSpecs(baseFile, headFile)
+        .catch((error) => comment(githubToken, error.message))
+        .then((results) => console.log(results))
+        .then((result) => comment(githubToken, markdownMessage(result)));
 }
 
-function diffSpecs(githubToken, baseFile, headFile) {
-    openapiDiff
+function diffSpecs(baseFile, headFile) {
+    return openapiDiff
         .diffSpecs({
             sourceSpec: {
                 content: fs.readFileSync(baseFile, 'utf8'),
@@ -27,8 +26,6 @@ function diffSpecs(githubToken, baseFile, headFile) {
                 format: 'openapi3'
             }
         })
-        .catch((error) => comment(githubToken, error.message))
-        .then((result) => comment(githubToken, markdownMessage(result)))
 }
 
 function comment(githubToken, message) {
@@ -94,18 +91,16 @@ function openApiResultsTable(changes) {
         return "";
     }
 
-    changes.forEach(function (item){
+    changes.forEach(function (item) {
         if (typeof item.sourceSpecEntityDetails !== "undefined") {
             item.sourceSpecEntityDetails.forEach(function (entity) {
                 msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
-                console.log()
             })
         }
 
         if (typeof item.destinationSpecEntityDetails !== "undefined") {
             item.destinationSpecEntityDetails.forEach(function (entity) {
                 msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
-                console.log()
             })
         }
     })
@@ -132,3 +127,11 @@ function actionEmoji(code) {
             return ":question:";
     }
 }
+
+main()
+    .then(r => {
+    })
+    .catch((error) => {
+        console.log(error)
+        core.setFailed(error.message);
+    });
