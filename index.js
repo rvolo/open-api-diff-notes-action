@@ -10,7 +10,10 @@ function main() {
 
     return diffSpecs(baseFile, headFile)
         .catch((error) => comment(githubToken, error.message))
-        .then((results) => console.log(results))
+        .then((results) => {
+            console.log(results);
+            return results;
+        })
         .then((result) => comment(githubToken, markdownMessage(result)));
 }
 
