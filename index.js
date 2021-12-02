@@ -54,7 +54,7 @@ function comment(githubToken, message) {
 }
 
 /**
- * Coverts diff results into a markdown message to post in pr
+ * Converts diff results into a markdown message to post in pr
  * @param openApiResults
  * @returns {string}
  */
@@ -80,7 +80,8 @@ function markdownMessage(openApiResults) {
     if (breaking.length > 0 || nonBreaking.length > 0) {
         return "## OpenApi Specification changes \n\n" + breaking + nonBreaking;
     }
-    return "";
+
+    return "## OpenApi Specification changes \n\n" + "#### :rocket: There are no API Changes in this PR";
 }
 
 /**
