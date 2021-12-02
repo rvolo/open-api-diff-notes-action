@@ -78,7 +78,9 @@ function markdownMessage(openApiResults) {
     }
 
     if (breaking.length > 0 || nonBreaking.length > 0) {
-        return "## OpenApi Specification changes \n\n" + breaking + nonBreaking;
+        return "## OpenApi Specification changes \n\n" 
+        + breaking + "\n\n"
+        + nonBreaking;
     }
 
     return "## OpenApi Specification changes \n\n" + "#### :rocket: There are no API Changes in this PR";
