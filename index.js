@@ -9,18 +9,21 @@ function main() {
     let githubToken = core.getInput('github_token', {required: true});
 
     return diffSpecs(baseFile, headFile)
-        .catch((error) => comment(githubToken, error.message))
-        .then((results) => {
-            console.log(results);
-            return results;
-        })
-        .then((result) => {
-            core.info(JSON.stringify(result));
-            comment(githubToken, markdownMessage(result))
-        });
+    .catch((error) => comment(githubToken, error.message))
+    .then((results) => {
+        console.log(results);
+        return results;
+    })
+    .then((result) => {
+        comment(githubToken, markdownMessage(result))
+    });
 }
 
 function diffSpecs(baseFile, headFile) {
+    
+    core.info(fs.readFileSync(baseFile, 'utf8'));
+    core.info(fs.readFileSync(headFile, 'utf8'));
+
     return openapiDiff
         .diffSpecs({
             sourceSpec: {
