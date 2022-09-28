@@ -106,13 +106,13 @@ function openApiResultsTable(changes) {
     changes.forEach(function (item) {
         if (typeof item.sourceSpecEntityDetails !== "undefined") {
             item.sourceSpecEntityDetails.forEach(function (entity) {
-                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |\n";
             })
         }
 
         if (typeof item.destinationSpecEntityDetails !== "undefined") {
             item.destinationSpecEntityDetails.forEach(function (entity) {
-                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |\n";
             })
         }
     })
