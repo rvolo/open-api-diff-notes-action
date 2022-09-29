@@ -1,29 +1,10 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
 const openapiDiff = require('openapi-diff');
-const fs = require('fs')
+const fs = require('fs');
 
-function main() {
-    let baseFile = core.getInput('baseFile', {required: true});
-    let headFile = core.getInput('headFile', {required: true});
-    let githubToken = core.getInput('github_token', {required: true});
-
-    return diffSpecs(baseFile, headFile)
-    .catch((error) => comment(githubToken, error.message))
-    .then((results) => {
-        console.log(results);
-        return results;
-    })
-    .then((result) => {
-        comment(githubToken, markdownMessage(result))
-    });
-}
+var baseFile = 'C:/dev/source/base/swagger.json';
+var headFile = 'C:/dev/source/base/swagger.json';
 
 function diffSpecs(baseFile, headFile) {
-    
-    core.info(fs.readFileSync(baseFile, 'utf8'));
-    core.info(fs.readFileSync(headFile, 'utf8'));
-
     return openapiDiff
         .diffSpecs({
             sourceSpec: {
@@ -37,34 +18,12 @@ function diffSpecs(baseFile, headFile) {
         })
 }
 
-function comment(githubToken, message) {
-    if (message.length === 0) {
-        return;
-    }
-
-    const octokit = github.getOctokit(githubToken);
-    let {owner, repo} = github.context.repo;
-
-    if (core.getInput('repo')) {
-        [owner, repo] = core.getInput('repo').split('/');
-    }
-
-    const issueNumber = github.context.issue.number;
-
-    octokit.issues.createComment({
-        owner,
-        repo,
-        issue_number: issueNumber,
-        body: message
-    });
-}
-
 /**
  * Converts diff results into a markdown message to post in pr
  * @param openApiResults
  * @returns {string}
  */
-function markdownMessage(openApiResults) {
+ function markdownMessage(openApiResults) {
     let breaking = openApiResultsTable(openApiResults.breakingDifferences);
     if (breaking.length > 0) {
         breaking =
@@ -106,13 +65,13 @@ function openApiResultsTable(changes) {
     changes.forEach(function (item) {
         if (typeof item.sourceSpecEntityDetails !== "undefined") {
             item.sourceSpecEntityDetails.forEach(function (entity) {
-                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |\n";
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
             })
         }
 
         if (typeof item.destinationSpecEntityDetails !== "undefined") {
             item.destinationSpecEntityDetails.forEach(function (entity) {
-                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |\n";
+                msg += "| " + actionEmoji(item.code) + "| " + item.code + " | " + entity.location + " |";
             })
         }
     })
@@ -140,10 +99,9 @@ function actionEmoji(code) {
     }
 }
 
-main()
-    .then(r => {
-    })
-    .catch((error) => {
-        console.log(error)
-        core.setFailed(error.message);
-    });
+diffSpecs(baseFile, headFile)
+.then((results) => {
+    console.log(results);
+    return results;
+})
+.then((result) => console.log(markdownMessage(result)));
